@@ -453,3 +453,5 @@ body.menu-open{overflow:hidden}
   .shop b{font-size:16px}
   .shop p{font-size:12.5px}
 }
+.down-contact{margin-top:40px;padding-top:32px;border-top:1px solid rgba(139,123,115,.25);display:flex;align-items:center;gap:18px 28px;flex-wrap:wrap}
+.down-points{margin-bottom:0}

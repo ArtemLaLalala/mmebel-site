@@ -6,7 +6,7 @@
 import json, html, os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'docs')
-VER = '5'
+VER = '6'
 
 # ================= КОНТАКТЫ =================
 WA = '79288204184'
@@ -367,7 +367,7 @@ def index():
 <section class="section" style="padding-top:0">
   <div class="container">
     <div class="section-head">
-      <div><span class="eyebrow">Comfort Collection</span><h2>Хиты премиальной линии</h2></div>
+      <div><span class="eyebrow">Коллекция Comfort</span><h2>Популярные модели</h2></div>
       <a class="link-arrow" href="catalog.html?c=mc">Все модели {I['arr']}</a>
     </div>
     <div class="rail rv">{mc_rail}</div>
@@ -396,7 +396,7 @@ def index():
         <div><i>02</i><p><b>«Лебяжий пух» в Comfort Collection</b><span>Мягкий гипоаллергенный наполнитель из Южной Кореи – ощущения как от натурального пуха.</span></p></div>
         <div><i>03</i><p><b>Продаём отдельно</b><span>Нужен пух для своего производства или для перетяжки? Поставляем оптом и в розницу.</span></p></div>
       </div>
-      <div class="hero-actions">
+      <div class="down-contact">
         {person(B2B_DOWN, 'dark', 'Заказать пух')}
         <a class="link-arrow" href="production.html#down">Подробнее {I['arr']}</a>
       </div>
@@ -582,7 +582,7 @@ def production():
         <div><i>02</i><p><b>Для частных покупателей</b><span>Продаём отдельно – для перетяжки, подушек и ремонта мебели.</span></p></div>
         <div><i>03</i><p><b>«Лебяжий пух» в Comfort Collection</b><span>В премиальной линии – гипоаллергенный наполнитель из Южной Кореи (Thinsulate).</span></p></div>
       </div>
-      <div class="hero-actions">
+      <div class="down-contact">
         {person(B2B_DOWN, 'dark', 'Заказать пух')}
       </div>
     </div>
