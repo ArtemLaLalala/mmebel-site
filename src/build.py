@@ -6,7 +6,7 @@
 import json, html, os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'docs')
-VER = '6'
+VER = '7'
 
 # ================= КОНТАКТЫ =================
 WA = '79288204184'
@@ -61,6 +61,7 @@ I = {
  'ph':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>',
  'arr':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
  'pin2':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+ 'home':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
  'x':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>',
  'l':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>',
  'r':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>',
@@ -84,6 +85,16 @@ for line in open(os.path.join(ROOT, 'src', 'products.txt'), encoding='utf-8'):
     PRODUCTS.append(dict(id=slug(name), page=int(page), img=f'{int(page):02d}', coll=coll, collName=COLL[coll],
         type=typ, typeName=TYPES[typ], name=name, sizes=sizes.split(';'), mech=mech, mat=mat.split(';')))
 MECHS = sorted({p['mech'] for p in PRODUCTS})
+# фото «в интерьере»: src/interior.txt (файл|страница каталога)
+_cnt = {}
+for line in open(os.path.join(ROOT, 'src', 'interior.txt'), encoding='utf-8'):
+    line = line.strip()
+    if not line or line.startswith('#'): continue
+    _f, _pg = line.split('|'); _pg = int(_pg)
+    _cnt[_pg] = _cnt.get(_pg, 0) + 1
+for _p in PRODUCTS:
+    _p['interior'] = [f"{_p['page']:02d}-{k}" for k in range(1, _cnt.get(_p['page'], 0) + 1)]
+INTERIOR = [(x, ph) for x in PRODUCTS for ph in x['interior']]
 P = {p['page']: p for p in PRODUCTS}
 
 def e(s): return html.escape(str(s))
@@ -93,6 +104,9 @@ def person(c, tone='dark', label=''):
     return (f'<a class="person {tone}" href="tel:{c["tel"]}" aria-label="Позвонить: {c["person"]}, {c["phone"]}">'
             f'<span class="p-ic">{I["ph"]}</span><span class="p-txt">{lab}<b>{c["person"]}</b><span>{c["phone"]}</span></span></a>')
 
+def int_badge(p):
+    return f'<span class="int-badge" title="Есть фото в интерьере">{I["home"]}<span>в интерьере</span></span>' if p['interior'] else ''
+
 def card(p, rail=False):
     first = p['sizes'][0]
     search = (p['name'] + ' ' + p['typeName'] + ' ' + p['mech'] + ' ' + p['collName']).lower()
@@ -100,7 +114,7 @@ def card(p, rail=False):
     tag = 'a' if rail else 'article'
     extra = f' href="{href}"' if rail else ''
     return f'''<{tag} class="card" data-id="{p['id']}" data-coll="{p['coll']}" data-type="{p['type']}" data-mech="{e(p['mech'])}" data-search="{e(search)}"{extra}>
-  <div class="card-img"><img src="img/products/{p['img']}.webp" alt="{e(p['typeName'].capitalize())} «{e(p['name'])}» – {e(p['collName'])}" loading="lazy" width="1000" height="676"></div>
+  <div class="card-img"><img src="img/products/{p['img']}-600.webp" srcset="img/products/{p['img']}-600.webp 600w, img/products/{p['img']}.webp 1000w" sizes="(max-width:600px) 92vw, 320px" alt="{e(p['typeName'].capitalize())} «{e(p['name'])}» – {e(p['collName'])}" loading="lazy" decoding="async" width="1000" height="676">{int_badge(p)}</div>
   <div class="card-body">
     <div class="card-top"><span class="badge {p['coll']}">{p['collName']}</span><span class="card-type">{p['typeName']}</span></div>
     <h3>{e(p['name'])}</h3>
@@ -111,7 +125,15 @@ def card(p, rail=False):
 </{tag}>'''
 
 # ================= ОБЩИЕ ЧАСТИ =================
-NAV = [('index.html','Главная'),('catalog.html','Каталог'),('production.html','Производство и пух'),('partners.html','Опт и партнёрам'),('contacts.html','Контакты')]
+NAV = [('index.html','Главная'),('catalog.html','Каталог'),('interior.html','В интерьере'),('production.html','Производство и пух'),('partners.html','Опт и партнёрам'),('contacts.html','Контакты')]
+
+def jsonld():
+    data = {"@context": "https://schema.org", "@type": "FurnitureStore", "name": "М Мебель",
+            "description": "Фабрика мягкой мебели в Ставрополе с 1998 года",
+            "foundingDate": "1998", "telephone": SHOPS[1]['tel'],
+            "sameAs": [TG, PIN],
+            "address": [{"@type": "PostalAddress", "addressLocality": s['city'], "streetAddress": s['name'], "addressCountry": "RU"} for s in SHOPS]}
+    return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False) + '</script>'
 
 def head(title, desc, page):
     return f'''<!doctype html>
@@ -128,7 +150,8 @@ def head(title, desc, page):
 <meta name="theme-color" content="#2f2827">
 <link rel="icon" href="img/brand/favicon.png">
 <link rel="preload" href="fonts/montserrat-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/style.css?v={VER}">
+<link rel="stylesheet" href="css/style.min.css?v={VER}">
+{jsonld() if page == 'index.html' else ''}
 </head>
 <body data-page="{page}">'''
 
@@ -216,7 +239,7 @@ def req_line():
 
 def end(extra=''):
     return f'''{extra}
-<script src="js/main.js?v={VER}"></script>
+<script src="js/main.min.js?v={VER}" defer></script>
 </body>
 </html>'''
 
@@ -274,7 +297,7 @@ def write(name, content):
 # ================= ГЛАВНАЯ =================
 def index():
     hero_pages = [5, 1, 19, 7, 47, 42]
-    slides = ''.join(f'<div class="hero-slide{" active" if k==0 else ""}" data-name="{e(P[n]["name"])}" data-coll="{P[n]["collName"]}"><img src="img/products/{P[n]["img"]}.webp" alt="{e(P[n]["name"])}" {"" if k==0 else "loading=lazy"} width="1000" height="676"></div>' for k, n in enumerate(hero_pages))
+    slides = ''.join(f'<div class="hero-slide{" active" if k==0 else ""}" data-name="{e(P[n]["name"])}" data-coll="{P[n]["collName"]}"><img src="img/products/{P[n]["img"]}.webp" alt="{e(P[n]["name"])}" {'fetchpriority="high"' if k==0 else 'loading="lazy"'} decoding="async" width="1000" height="676"></div>' for k, n in enumerate(hero_pages))
     mc_rail = ''.join(card(P[n], True) for n in [1, 3, 5, 7, 13, 19])
     mm_rail = ''.join(card(P[n], True) for n in [21, 25, 33, 42, 47, 56])
     shops = ''.join(f'''
@@ -423,6 +446,7 @@ def index():
   </div>
 </section>
 
+{interior_teaser()}
 <section class="section" id="where">
   <div class="container">
     <div class="section-head">
@@ -464,6 +488,69 @@ def index():
         'Фабрика мягкой мебели «М Мебель» в Ставрополе с 1998 года. Диваны, угловые диваны, кресла с электрореклайнерами. Премиальная линия Comfort Collection. Мебель и пух оптом.', 'index.html')
         + header('index.html') + '<main>' + body + '</main>' + footer() + end())
 
+def interior_teaser():
+    picks = [21, 5, 42, 7, 19, 49]
+    items = ''
+    for n in picks:
+        x = P[n]
+        if not x['interior']: continue
+        ph = x['interior'][0]
+        items += f'''<a class="int-tile" href="interior.html#{x['id']}"><img src="img/interior/{ph}-640.webp" alt="{e(x['typeName'].capitalize())} «{e(x['name'])}» в интерьере" loading="lazy" decoding="async" width="640" height="900"><span class="int-cap"><b>{e(x['name'])}</b><small>{x['collName']}</small></span></a>'''
+    return f'''
+<section class="section interior-teaser">
+  <div class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Мебель в интерьере</span><h2>Как наши диваны смотрятся дома</h2></div>
+      <a class="link-arrow" href="interior.html">Все интерьеры {I['arr']}</a>
+    </div>
+    <div class="int-row rv">{items}</div>
+  </div>
+</section>'''
+
+# ================= В ИНТЕРЬЕРЕ =================
+def interior():
+    tiles = ''
+    for x, ph in INTERIOR:
+        tiles += f'''
+      <figure class="int-item" data-id="{x['id']}" data-coll="{x['coll']}">
+        <button class="int-open" type="button" aria-label="Открыть фото: {e(x['name'])}"><img src="img/interior/{ph}-640.webp" srcset="img/interior/{ph}-640.webp 640w, img/interior/{ph}-1280.webp 1280w" sizes="(max-width:600px) 92vw, (max-width:1000px) 46vw, 30vw" alt="{e(x['typeName'].capitalize())} «{e(x['name'])}» в интерьере" loading="lazy" decoding="async" width="640" height="900"></button>
+        <figcaption>
+          <div><span class="badge {x['coll']}">{x['collName']}</span><b>{e(x['name'])}</b><small>{x['typeName']} · {e(x['sizes'][0])}</small></div>
+          <a class="link-arrow" href="catalog.html#{x['id']}">В каталоге {I['arr']}</a>
+        </figcaption>
+      </figure>'''
+    data = json.dumps([dict(id=x['id'], name=x['name'], coll=x['collName'], type=x['typeName'], ph=ph) for x, ph in INTERIOR], ensure_ascii=False)
+    body = page_hero('В интерьере', 'Мебель в интерьере', 'Наши диваны в интерьере',
+        f'{len(INTERIOR)} моделей в реальных пространствах. Нажмите на фото, чтобы рассмотреть его, или перейдите к модели в каталоге.') + f'''
+<div class="filters">
+  <div class="container filters-inner">
+    <div class="seg" data-ifilter><button data-v="all" class="active">Все</button><button data-v="mc">Comfort Collection</button><button data-v="mm">М Мебель</button></div>
+    <span class="count" id="i-count"></span>
+  </div>
+</div>
+<section class="section" style="padding-top:40px">
+  <div class="container"><div class="int-grid" id="int-grid">{tiles}</div></div>
+</section>
+{cta_band()}
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Фото в интерьере">
+  <div class="lb-bg" data-lb-close></div>
+  <button class="lb-btn lb-close" data-lb-close aria-label="Закрыть">{I['x']}</button>
+  <button class="lb-btn lb-prev" id="lb-prev" aria-label="Предыдущее">{I['l']}</button>
+  <button class="lb-btn lb-next" id="lb-next" aria-label="Следующее">{I['r']}</button>
+  <figure class="lb-fig">
+    <img id="lb-img" src="" alt="">
+    <figcaption>
+      <div><small id="lb-coll"></small><b id="lb-name"></b></div>
+      <div class="lb-actions">
+        <a class="btn btn-light btn-sm" id="lb-cat" href="#">Смотреть в каталоге {I['arr']}</a>
+        <a class="btn btn-wa btn-sm" id="lb-wa" href="#" target="_blank" rel="noopener">{I['wa']} Узнать цену</a>
+      </div>
+    </figcaption>
+  </figure>
+</div>'''
+    write('interior.html', head('Мебель в интерьере – диваны М Мебель и Comfort Collection', 'Фото диванов и кресел фабрики «М Мебель» в интерьере: как модели Comfort Collection и М Мебель смотрятся в реальных пространствах.', 'interior.html')
+        + header('interior.html') + '<main>' + body + '</main>' + footer() + end(f'<script>window.INTERIOR={data};window.WA="{WA}"</script>'))
+
 # ================= КАТАЛОГ =================
 def catalog():
     cards_html = ''
@@ -496,8 +583,15 @@ def catalog():
   <div class="modal-box">
     <button class="modal-close" data-close aria-label="Закрыть">{I['x']}</button>
     <div class="modal-media">
-      <div class="seg views" id="m-views"><button data-v="photo" class="active">Фото</button><button data-v="page">Страница каталога</button></div>
+      <div class="seg views" id="m-views"><button data-v="photo" class="active">Фото</button><button data-v="interior">В интерьере</button><button data-v="page">Каталог</button></div>
       <img id="m-img" src="" alt="">
+      <div class="m-stub" id="m-stub" hidden>
+        <span class="m-stub-ic">{I['home']}</span>
+        <b>Фото этой модели в интерьере пока нет</b>
+        <p>Напишите нам – пришлём живые фото из магазина или подберём похожую модель, которая уже есть в интерьере.</p>
+        <a class="btn btn-outline btn-sm" href="interior.html">Все модели в интерьере {I['arr']}</a>
+      </div>
+      <a class="m-int-link" id="m-int-link" href="interior.html" hidden>Открыть в галерее {I['arr']}</a>
     </div>
     <div class="modal-info">
       <div class="card-top"><span class="badge" id="m-coll"></span><span class="card-type" id="m-type"></span></div>
@@ -798,6 +892,31 @@ def consent():
              'Согласие посетителя сайта на использование файлов cookie и технических данных.', body,
              'Согласие на обработку персональных данных (cookie) посетителя сайта «М Мебель».')
 
+# ================= SEO и служебные файлы =================
+SITE = 'https://artemlalalala.github.io/mmebel-site/'   # поменять при подключении домена
+def extras():
+    pages = ['index.html', 'catalog.html', 'interior.html', 'production.html', 'partners.html', 'contacts.html', 'privacy.html', 'consent.html']
+    sm = ''.join(f'<url><loc>{SITE}{"" if pg=="index.html" else pg}</loc></url>' for pg in pages)
+    open(os.path.join(OUT, 'sitemap.xml'), 'w').write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{sm}</urlset>')
+    open(os.path.join(OUT, 'robots.txt'), 'w').write(f'User-agent: *\nAllow: /\nSitemap: {SITE}sitemap.xml\n')
+    body = page_hero('404', 'Ошибка 404', 'Страница не найдена', 'Возможно, ссылка устарела. Перейдите в каталог или на главную.') + f'''
+<section class="section"><div class="container hero-actions"><a class="btn btn-dark" href="catalog.html">Открыть каталог {I['arr']}</a><a class="btn btn-outline" href="index.html">На главную</a></div></section>'''
+    write('404.html', head('Страница не найдена – М Мебель', 'Страница не найдена', '404.html').replace('<head>', '<head>\n<base href="/mmebel-site/">') + header('') + '<main>' + body + '</main>' + footer() + end())
+    minify()
+
+def minify():
+    import re
+    css = open(os.path.join(OUT, 'css', 'style.css'), encoding='utf-8').read()
+    css = re.sub(r'/\*.*?\*/', '', css, flags=re.S)
+    css = re.sub(r'\s+', ' ', css)
+    css = re.sub(r'\s*([{};,>])\s*', r'\1', css).replace(';}', '}')
+    open(os.path.join(OUT, 'css', 'style.min.css'), 'w', encoding='utf-8').write(css.strip())
+    js = open(os.path.join(OUT, 'js', 'main.js'), encoding='utf-8').read()
+    js = '\n'.join(l.strip() for l in js.splitlines() if l.strip() and not l.strip().startswith('//') and not (l.strip().startswith('/*') and l.strip().endswith('*/')))
+    open(os.path.join(OUT, 'js', 'main.min.js'), 'w', encoding='utf-8').write(js)
+    print('✓ minified css/js')
+
 if __name__ == '__main__':
-    index(); catalog(); production(); partners(); contacts(); privacy(); consent()
+    index(); catalog(); interior(); production(); partners(); contacts(); privacy(); consent()
+    extras()
     open(os.path.join(OUT, '.nojekyll'), 'w').close()

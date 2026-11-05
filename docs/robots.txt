@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://artemlalalala.github.io/mmebel-site/sitemap.xml

@@ -147,10 +147,17 @@
   }
   function setView(v, p) {
     p = p || data.find(x => x.id === current); view = v;
-    const img = $('#m-img');
-    img.src = v === 'photo' ? `img/products/${p.img}.webp` : `img/pages/${p.img}.webp`;
-    img.alt = p.name;
+    const img = $('#m-img'), stub = $('#m-stub'), link = $('#m-int-link');
+    const has = p.interior && p.interior.length;
+    stub.hidden = true; link.hidden = true; img.hidden = false;
+    img.classList.toggle('portrait', v === 'interior');
+    if (v === 'photo') img.src = `img/products/${p.img}.webp`;
+    else if (v === 'page') img.src = `img/pages/${p.img}.webp`;
+    else if (has) { img.src = `img/interior/${p.interior[0]}-1280.webp`; link.hidden = false; link.href = `interior.html#${p.id}`; }
+    else { img.hidden = true; img.removeAttribute('src'); stub.hidden = false; }
+    img.alt = v === 'interior' ? `${p.name} в интерьере` : p.name;
     $$('#m-views button').forEach(b => b.classList.toggle('active', b.dataset.v === v));
+    const ib = $('#m-views [data-v="interior"]'); if (ib) ib.classList.toggle('none', !has);
   }
   function closeModal() {
     if (!modal) return;
@@ -162,7 +169,11 @@
     openModal(list[(k + d + list.length) % list.length]);
   }
   if (modal) {
-    cards.forEach(c => c.addEventListener('click', (e) => { if (e.target.closest('a')) return; openModal(c.dataset.id); }));
+    cards.forEach(c => c.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return;
+      openModal(c.dataset.id);
+      if (e.target.closest('.int-badge')) setView('interior');
+    }));
     $$('[data-close]', modal).forEach(b => b.addEventListener('click', closeModal));
     $$('#m-views button').forEach(b => b.addEventListener('click', () => setView(b.dataset.v)));
     $('#m-prev').addEventListener('click', () => step(-1));
@@ -180,6 +191,51 @@
       if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1); sx = null;
     });
     if (location.hash.length > 1) openModal(decodeURIComponent(location.hash.slice(1)), false);
+  }
+
+  /* ---------- interior gallery ---------- */
+  const igrid = $('#int-grid');
+  if (igrid) {
+    const items = $$('.int-item', igrid);
+    const list = window.INTERIOR || [];
+    const lb = $('#lightbox');
+    let li = -1;
+    const visible = () => items.filter(x => !x.classList.contains('hide'));
+    function count() { const n = visible().length; $('#i-count').textContent = n + ' ' + plural(n, ['фото', 'фото', 'фото']); }
+    $$('[data-ifilter] button').forEach(b => b.addEventListener('click', () => {
+      $$('[data-ifilter] button').forEach(x => x.classList.toggle('active', x === b));
+      items.forEach(x => { const ok = b.dataset.v === 'all' || x.dataset.coll === b.dataset.v; x.classList.toggle('hide', !ok); if (ok) { x.classList.remove('reveal'); void x.offsetWidth; x.classList.add('reveal'); } });
+      count();
+    }));
+    count();
+    function openLb(k) {
+      const vis = visible(); if (!vis.length) return;
+      li = (k + vis.length) % vis.length;
+      const el = vis[li], d = list[items.indexOf(el)];
+      $('#lb-img').src = `img/interior/${d.ph}-1280.webp`; $('#lb-img').alt = `${d.name} в интерьере`;
+      $('#lb-name').textContent = d.name; $('#lb-coll').textContent = d.coll + ' · ' + d.type;
+      $('#lb-cat').href = `catalog.html#${d.id}`;
+      $('#lb-wa').href = waLink(`Здравствуйте! Меня интересует модель «${d.name}» (${d.coll}), увидел(а) её в разделе «В интерьере». Подскажите цену.`);
+      lb.classList.add('open'); document.body.style.overflow = 'hidden';
+      history.replaceState(null, '', location.pathname + '#' + d.id);
+    }
+    function closeLb() { lb.classList.remove('open'); document.body.style.overflow = ''; history.replaceState(null, '', location.pathname); }
+    items.forEach(x => $('.int-open', x).addEventListener('click', () => openLb(visible().indexOf(x))));
+    $$('[data-lb-close]', lb).forEach(b => b.addEventListener('click', closeLb));
+    $('#lb-prev').addEventListener('click', () => openLb(li - 1));
+    $('#lb-next').addEventListener('click', () => openLb(li + 1));
+    document.addEventListener('keydown', e => {
+      if (!lb.classList.contains('open')) return;
+      if (e.key === 'Escape') closeLb(); if (e.key === 'ArrowRight') openLb(li + 1); if (e.key === 'ArrowLeft') openLb(li - 1);
+    });
+    let tx = null;
+    lb.addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive: true });
+    lb.addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) openLb(li + (dx < 0 ? 1 : -1)); tx = null; });
+    if (location.hash.length > 1) {
+      const id = decodeURIComponent(location.hash.slice(1));
+      const el = items.find(x => x.dataset.id === id);
+      if (el) { el.scrollIntoView({ block: 'center' }); setTimeout(() => openLb(visible().indexOf(el)), 300); }
+    }
   }
 
   /* ---------- cookie consent (152-ФЗ) ---------- */
