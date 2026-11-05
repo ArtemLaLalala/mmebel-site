@@ -1,4 +1,4 @@
-/* М МЕБЕЛЬ — интерактив */
+/* М МЕБЕЛЬ – интерактив */
 (function () {
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -182,19 +182,34 @@
     if (location.hash.length > 1) openModal(decodeURIComponent(location.hash.slice(1)), false);
   }
 
-  /* lazy map */
-  $$('[data-map]').forEach(box => {
-    const load = () => { if (box.dataset.loaded) return; box.dataset.loaded = 1; box.innerHTML = `<iframe loading="lazy" src="${box.dataset.map}" title="Карта"></iframe>`; };
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { load(); io.disconnect(); } }));
-      io.observe(box);
-    } else load();
-  });
+  /* ---------- cookie consent (152-ФЗ) ---------- */
+  const KEY = 'mm-consent';
+  const getConsent = () => { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
+  const setConsent = (v) => { try { localStorage.setItem(KEY, v); localStorage.setItem(KEY + '-date', new Date().toISOString()); } catch (e) {} };
+  const banner = $('#cookie');
+  function showBanner() { if (banner) { banner.hidden = false; requestAnimationFrame(() => banner.classList.add('show')); } }
+  function hideBanner() { if (banner) { banner.classList.remove('show'); setTimeout(() => { banner.hidden = true; }, 400); } }
+  try {
+    const d = localStorage.getItem(KEY + '-date');
+    if (d && Date.now() - new Date(d).getTime() > 365 * 864e5) localStorage.setItem(KEY, '');
+  } catch (e) {}
+  if (!getConsent()) setTimeout(showBanner, 900);
+  $$('[data-cookie]').forEach(b => b.addEventListener('click', () => { setConsent(b.dataset.cookie); hideBanner(); applyMaps(); }));
+  $$('[data-cookie-settings]').forEach(b => b.addEventListener('click', showBanner));
 
-  /* map switch on contacts */
+  /* ---------- maps: only after consent ---------- */
+  function mapFrame(box, src) { box.innerHTML = `<iframe loading="lazy" src="${src}" title="Карта"></iframe>`; }
+  function mapStub(box) {
+    box.innerHTML = `<div class="map-stub"><p>Карта «Яндекс Карты» загружается только с вашего согласия на использование cookie.</p><button class="btn btn-dark btn-sm" type="button">Принять и показать карту</button></div>`;
+    $('button', box).addEventListener('click', () => { setConsent('all'); hideBanner(); applyMaps(); });
+  }
+  function applyMaps() {
+    $$('[data-map]').forEach(box => getConsent() === 'all' ? mapFrame(box, box.dataset.map) : mapStub(box));
+  }
+  applyMaps();
   $$('[data-map-btn]').forEach(b => b.addEventListener('click', () => {
-    const box = $('#map'); box.dataset.loaded = ''; box.dataset.map = b.dataset.mapBtn;
-    box.innerHTML = `<iframe loading="lazy" src="${b.dataset.mapBtn}" title="Карта"></iframe>`;
+    const box = $('#map'); box.dataset.map = b.dataset.mapBtn;
+    applyMaps();
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }));
 })();

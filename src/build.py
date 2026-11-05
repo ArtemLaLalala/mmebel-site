@@ -6,7 +6,7 @@
 import json, html, os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'docs')
-VER = '4'
+VER = '5'
 
 # ================= КОНТАКТЫ =================
 WA = '79288204184'
@@ -20,6 +20,20 @@ B2B_DOWN = dict(person='Радислав', phone='8 (928) 329-05-53', tel='+7928
 TG = 'https://t.me/mmebel_m'
 IG = 'https://instagram.com/mmebel_m'
 PIN = 'https://pinterest.com/mmebel_m'
+
+# ================= РЕКВИЗИТЫ (заполнить!) =================
+# Нужны для Политики обработки персональных данных и закона «О защите прав потребителей».
+LEGAL = dict(
+    org='',        # напр. 'ИП Иванова Мария Ивановна' или 'ООО «М Мебель»'
+    inn='',        # ИНН
+    ogrn='',       # ОГРН / ОГРНИП
+    address='',    # юридический адрес
+    email='',      # e-mail для запросов по персональным данным
+)
+POLICY_DATE = '05.11.2026'
+META_NOTE = '* Instagram принадлежит компании Meta Platforms Inc., деятельность которой признана экстремистской и запрещена на территории Российской Федерации.'
+def legal(k, ph):
+    return e(LEGAL[k]) if LEGAL[k] else f'<span class="todo">{ph}</span>'
 CITIES = ['Анапа','Астрахань','Армавир','Баксан','Благодарный','Владикавказ','Геленджик','Георгиевск','Грозный',
  'Донское','Ингушетия','Ипатово','Кисловодск','Красногвардейское','Краснодар','Курганинск','Лечинкай','Миллерово',
  'Михайловск','Москва','Нальчик','Невинномысск','Нефтекумск','Новоалександровск','Новопавловск','Отрадное',
@@ -74,6 +88,11 @@ P = {p['page']: p for p in PRODUCTS}
 
 def e(s): return html.escape(str(s))
 
+def person(c, tone='dark', label=''):
+    lab = f'<small>{label}</small>' if label else ''
+    return (f'<a class="person {tone}" href="tel:{c["tel"]}" aria-label="Позвонить: {c["person"]}, {c["phone"]}">'
+            f'<span class="p-ic">{I["ph"]}</span><span class="p-txt">{lab}<b>{c["person"]}</b><span>{c["phone"]}</span></span></a>')
+
 def card(p, rail=False):
     first = p['sizes'][0]
     search = (p['name'] + ' ' + p['typeName'] + ' ' + p['mech'] + ' ' + p['collName']).lower()
@@ -81,7 +100,7 @@ def card(p, rail=False):
     tag = 'a' if rail else 'article'
     extra = f' href="{href}"' if rail else ''
     return f'''<{tag} class="card" data-id="{p['id']}" data-coll="{p['coll']}" data-type="{p['type']}" data-mech="{e(p['mech'])}" data-search="{e(search)}"{extra}>
-  <div class="card-img"><img src="img/products/{p['img']}.webp" alt="{e(p['typeName'].capitalize())} «{e(p['name'])}» — {e(p['collName'])}" loading="lazy" width="1000" height="676"></div>
+  <div class="card-img"><img src="img/products/{p['img']}.webp" alt="{e(p['typeName'].capitalize())} «{e(p['name'])}» – {e(p['collName'])}" loading="lazy" width="1000" height="676"></div>
   <div class="card-body">
     <div class="card-top"><span class="badge {p['coll']}">{p['collName']}</span><span class="card-type">{p['typeName']}</span></div>
     <h3>{e(p['name'])}</h3>
@@ -108,9 +127,7 @@ def head(title, desc, page):
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#2f2827">
 <link rel="icon" href="img/brand/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="fonts/montserrat-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css?v={VER}">
 </head>
 <body data-page="{page}">'''
@@ -121,7 +138,7 @@ def header(page, dark=True):
     return f'''
 <header class="header{' is-dark' if dark else ''}">
   <div class="container header-inner">
-    <a class="logo" href="index.html" aria-label="М Мебель — на главную">
+    <a class="logo" href="index.html" aria-label="М Мебель – на главную">
       <img class="l-dark" src="img/brand/mm-dark.png" alt="М Мебель" width="241" height="273">
       <img class="l-light" src="img/brand/mm-light.png" alt="М Мебель" width="241" height="273">
     </a>
@@ -136,8 +153,8 @@ def header(page, dark=True):
 <div class="mobile-menu">
   {mlinks}
   <div class="m-foot">
-    <a href="tel:{SHOPS[1]['tel']}">{SHOPS[1]['phone']} — ул. Доваторцев, 74</a>
-    <a href="tel:{SHOPS[0]['tel']}">{SHOPS[0]['phone']} — Михайловское ш., 14</a>
+    <a href="tel:{SHOPS[1]['tel']}">{SHOPS[1]['phone']} – ул. Доваторцев, 74</a>
+    <a href="tel:{SHOPS[0]['tel']}">{SHOPS[0]['phone']} – Михайловское ш., 14</a>
     <a class="btn btn-wa" href="{wa()}" target="_blank" rel="noopener">{I['wa']} Написать в WhatsApp</a>
   </div>
 </div>'''
@@ -149,7 +166,7 @@ def footer():
     <div class="footer-grid">
       <div>
         <div class="logos"><img src="img/brand/mm-light.png" alt="М Мебель" width="241" height="273"><img src="img/brand/mc-light.png" alt="Comfort Collection" width="516" height="222"></div>
-        <p>Фабрика мягкой мебели «М Мебель». Ставрополь, с 1998 года. Премиальная линия Comfort Collection — с 2017 года.</p>
+        <p>Фабрика мягкой мебели «М Мебель». Ставрополь, с 1998 года. Премиальная линия Comfort Collection – с 2017 года.</p>
       </div>
       <div>
         <h4>Разделы</h4>
@@ -166,21 +183,36 @@ def footer():
         <ul>
           <li><a href="{wa()}" target="_blank" rel="noopener">WhatsApp {WA_TXT}</a></li>
           <li><a href="{TG}" target="_blank" rel="noopener">Telegram</a></li>
-          <li><a href="{IG}" target="_blank" rel="noopener">Instagram</a></li>
+          <li><a href="{IG}" target="_blank" rel="noopener">Instagram*</a></li>
           <li><a href="{PIN}" target="_blank" rel="noopener">Pinterest</a></li>
           <li>Мебель оптом: <a href="tel:{B2B_FURN['tel']}">{B2B_FURN['phone']}</a></li>
           <li>Пух оптом: <a href="tel:{B2B_DOWN['tel']}">{B2B_DOWN['phone']}</a></li>
         </ul>
       </div>
     </div>
+    <div class="footer-legal">
+      <a href="privacy.html">Политика обработки персональных данных</a>
+      <a href="consent.html">Согласие на обработку данных</a>
+      <button type="button" data-cookie-settings>Настройки cookie</button>
+    </div>
+    {req_line()}
     <div class="footer-bottom">
-      <span>© 1998–<span id="y">2026</span> «М Мебель». Цены на мебель — по запросу. Информация на сайте не является публичной офертой.</span>
-      <span>Ставрополь</span>
+      <span>© 1998–<span id="y">2026</span> «М Мебель». Цены на мебель – по запросу. Информация на сайте носит справочный характер и не является публичной офертой (ст. 437 ГК РФ). Цвет обивки на фото может отличаться от реального.</span>
+      <span>{META_NOTE}</span>
     </div>
   </div>
 </footer>
+<div class="cookie" id="cookie" role="dialog" aria-label="Использование cookie" hidden>
+  <p>Мы используем файлы cookie и сервис «Яндекс Карты», чтобы сайт работал корректно. Нажимая «Принять», вы даёте <a href="consent.html">согласие на обработку данных</a> в соответствии с <a href="privacy.html">Политикой</a>. Отказаться можно в любой момент.</p>
+  <div class="cookie-btns"><button class="btn btn-dark btn-sm" data-cookie="all">Принять</button><button class="btn btn-outline btn-sm" data-cookie="necessary">Только необходимые</button></div>
+</div>
 <a class="fab" href="{wa('Здравствуйте! Хочу узнать о мебели М Мебель.')}" target="_blank" rel="noopener" aria-label="Написать в WhatsApp">{I['wa']}</a>
 <script>document.getElementById('y').textContent=new Date().getFullYear()</script>'''
+
+def req_line():
+    parts = [LEGAL['org'], f"ИНН {LEGAL['inn']}" if LEGAL['inn'] else '', f"ОГРН {LEGAL['ogrn']}" if LEGAL['ogrn'] else '', LEGAL['address']]
+    parts = [e(x) for x in parts if x]
+    return f'<div class="footer-req">{" · ".join(parts)}</div>' if parts else ''
 
 def end(extra=''):
     return f'''{extra}
@@ -205,7 +237,7 @@ def cta_band():
   <div class="container cta-inner rv">
     <div>
       <span class="eyebrow">Цена по запросу</span>
-      <h2 style="margin-top:14px">Подберём модель, ткань и цвет — и назовём точную цену</h2>
+      <h2 style="margin-top:14px">Подберём модель, ткань и цвет – и назовём точную цену</h2>
     </div>
     <div class="hero-actions">
       <a class="btn btn-wa" href="{wa('Здравствуйте! Помогите подобрать диван.')}" target="_blank" rel="noopener">{I['wa']} Написать в WhatsApp</a>
@@ -221,14 +253,14 @@ def social_block():
     <div class="social-card rv">
       <div style="position:relative;z-index:1">
         <span class="eyebrow" style="color:var(--taupe-2)">Мы на связи каждый день</span>
-        <h2 style="margin:16px 0 18px">Больше видео, фото и новинок — в наших соцсетях</h2>
-        <p style="opacity:.75;max-width:460px">В Telegram-канале — живые видео моделей, механизмы трансформации, новые ткани и подробные описания диванов.</p>
+        <h2 style="margin:16px 0 18px">Больше видео, фото и новинок – в наших соцсетях</h2>
+        <p style="opacity:.75;max-width:460px">В Telegram-канале – живые видео моделей, механизмы трансформации, новые ткани и подробные описания диванов.</p>
       </div>
       <div class="social-links">
-        <a href="{TG}" target="_blank" rel="noopener">{I['tg']}<div><b>Telegram</b><small>t.me/mmebel_m — видео и описания</small></div></a>
-        <a href="{IG}" target="_blank" rel="noopener">{I['ig']}<div><b>Instagram</b><small>@mmebel_m</small></div></a>
-        <a href="{PIN}" target="_blank" rel="noopener">{I['pin']}<div><b>Pinterest</b><small>mmebel_m — идеи для интерьера</small></div></a>
-        <a href="{wa()}" target="_blank" rel="noopener">{I['wa']}<div><b>WhatsApp</b><small>{WA_TXT} — консультация и цены</small></div></a>
+        <a href="{TG}" target="_blank" rel="noopener">{I['tg']}<div><b>Telegram</b><small>t.me/mmebel_m – видео и описания</small></div></a>
+        <a href="{IG}" target="_blank" rel="noopener">{I['ig']}<div><b>Instagram*</b><small>@mmebel_m</small></div></a>
+        <a href="{PIN}" target="_blank" rel="noopener">{I['pin']}<div><b>Pinterest</b><small>mmebel_m – идеи для интерьера</small></div></a>
+        <a href="{wa()}" target="_blank" rel="noopener">{I['wa']}<div><b>WhatsApp</b><small>{WA_TXT} – консультация и цены</small></div></a>
       </div>
     </div>
   </div>
@@ -265,7 +297,7 @@ def index():
     <div>
       <span class="eyebrow rv">Фабрика мягкой мебели · Ставрополь</span>
       <h1 class="rv rv-d1" style="margin-top:22px">Мягкая мебель,<br>в которой хочется<br>остаться</h1>
-      <p class="lead rv rv-d2">«М Мебель» — производство полного цикла с 1998 года. Диваны и кресла от базовых моделей до премиальной линии Comfort Collection с электрореклайнерами и наполнителем «лебяжий пух».</p>
+      <p class="lead rv rv-d2">«М Мебель» – производство полного цикла с 1998 года. Диваны и кресла от базовых моделей до премиальной линии Comfort Collection с электрореклайнерами и наполнителем «лебяжий пух».</p>
       <div class="hero-actions rv rv-d3">
         <a class="btn btn-light" href="catalog.html">Смотреть каталог {I['arr']}</a>
         <a class="btn btn-wa" href="{wa('Здравствуйте! Хочу узнать цену на диван.')}" target="_blank" rel="noopener">{I['wa']} Узнать цену</a>
@@ -284,7 +316,7 @@ def index():
     <div class="stat rv"><b>1998</b><span>год основания фабрики</span></div>
     <div class="stat rv rv-d1"><b>{n_models}</b><span>моделей в каталоге: диваны, угловые, кресла, пуфы</span></div>
     <div class="stat rv rv-d2"><b>{len(CITIES)}+</b><span>городов России, где представлена наша мебель</span></div>
-    <div class="stat rv rv-d3"><b>100%</b><span>собственное производство — от дизайна до упаковки</span></div>
+    <div class="stat rv rv-d3"><b>100%</b><span>собственное производство – от дизайна до упаковки</span></div>
   </div>
 </section>
 
@@ -304,7 +336,7 @@ def index():
         <div class="c-text">
           <img class="c-logo" src="img/brand/mc-light.png" alt="Comfort Collection" width="516" height="222">
           <h3>Премиальная линия</h3>
-          <p>С 2017 года мы выпускаем Comfort Collection — современные технологии, массив дерева и наполнитель «лебяжий пух» из Южной Кореи, максимально приближенный по ощущениям к натуральному.</p>
+          <p>С 2017 года мы выпускаем Comfort Collection – современные технологии, массив дерева и наполнитель «лебяжий пух» из Южной Кореи, максимально приближенный по ощущениям к натуральному.</p>
           <ul>
             <li>Электрореклайнеры и механизм «Спартак»</li>
             <li>Независимый пружинный блок и HR ППУ повышенной плотности</li>
@@ -358,14 +390,14 @@ def index():
     <div>
       <span class="eyebrow">Наша гордость</span>
       <h2 style="margin:16px 0 20px">Пух для набивки мы производим сами</h2>
-      <p class="lead">Сырьё поступает к нам в неготовом виде и проходит обработку на нашем оборудовании — поэтому мы контролируем качество на каждом этапе. Наш пух поставляется и другим мебельным фабрикам по всей России.</p>
+      <p class="lead">Сырьё поступает к нам в неготовом виде и проходит обработку на нашем оборудовании – поэтому мы контролируем качество на каждом этапе. Наш пух поставляется и другим мебельным фабрикам по всей России.</p>
       <div class="down-points">
-        <div><i>01</i><p><b>Полный контроль</b><span>От сырья до готового наполнителя — всё на нашем производстве.</span></p></div>
-        <div><i>02</i><p><b>«Лебяжий пух» в Comfort Collection</b><span>Мягкий гипоаллергенный наполнитель из Южной Кореи — ощущения как от натурального пуха.</span></p></div>
+        <div><i>01</i><p><b>Полный контроль</b><span>От сырья до готового наполнителя – всё на нашем производстве.</span></p></div>
+        <div><i>02</i><p><b>«Лебяжий пух» в Comfort Collection</b><span>Мягкий гипоаллергенный наполнитель из Южной Кореи – ощущения как от натурального пуха.</span></p></div>
         <div><i>03</i><p><b>Продаём отдельно</b><span>Нужен пух для своего производства или для перетяжки? Поставляем оптом и в розницу.</span></p></div>
       </div>
       <div class="hero-actions">
-        <a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} Заказать пух</a>
+        {person(B2B_DOWN, 'dark', 'Заказать пух')}
         <a class="link-arrow" href="production.html#down">Подробнее {I['arr']}</a>
       </div>
     </div>
@@ -395,7 +427,7 @@ def index():
   <div class="container">
     <div class="section-head">
       <div><span class="eyebrow">Где купить</span><h2>Приходите посидеть на диванах вживую</h2></div>
-      <p class="lead" style="max-width:420px">Цены — по запросу: позвоните или напишите в ближайший к вам магазин, и мы рассчитаем стоимость в нужной ткани.</p>
+      <p class="lead" style="max-width:420px">Цены – по запросу: позвоните или напишите в ближайший к вам магазин, и мы рассчитаем стоимость в нужной ткани.</p>
     </div>
     <div class="where-grid">{shops}</div>
     <div class="cities rv">
@@ -413,22 +445,22 @@ def index():
     <div class="section-head"><div><span class="eyebrow">Оптовым партнёрам</span><h2>Работаем с магазинами и фабриками</h2></div></div>
     <div class="b2b-grid">
       <div class="b2b dark rv">
-        <span class="num">01 — ДЛЯ МЕБЕЛЬНЫХ МАГАЗИНОВ</span>
+        <span class="num">01 – ДЛЯ МЕБЕЛЬНЫХ МАГАЗИНОВ</span>
         <h3>Мебель оптом</h3>
-        <p>Ищем мебельные магазины в регионах России, заинтересованные в продаже готовой качественной мебели от производителя. От вас — заказы и хороший настрой, от нас — стильная и удобная мебель в ваши магазины.</p>
-        <div class="who"><div><b>{B2B_FURN['person']}</b></div><a class="btn btn-light" href="tel:{B2B_FURN['tel']}">{I['ph']} {B2B_FURN['phone']}</a></div>
+        <p>Ищем мебельные магазины в регионах России, заинтересованные в продаже готовой качественной мебели от производителя. От вас – заказы и хороший настрой, от нас – стильная и удобная мебель в ваши магазины.</p>
+        <div class="who">{person(B2B_FURN, 'light', 'Мебель оптом')}</div>
       </div>
       <div class="b2b sand rv rv-d1">
-        <span class="num">02 — ДЛЯ МЕБЕЛЬНЫХ ПРОИЗВОДСТВ</span>
+        <span class="num">02 – ДЛЯ МЕБЕЛЬНЫХ ПРОИЗВОДСТВ</span>
         <h3>Пух оптом и в розницу</h3>
         <p>Пух собственного производства для набивки подушек, спинок и сидений. Уже поставляем другим мебельным фабрикам по всей России.</p>
-        <div class="who"><div><b>{B2B_DOWN['person']}</b></div><a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} {B2B_DOWN['phone']}</a></div>
+        <div class="who">{person(B2B_DOWN, 'dark', 'Пух оптом')}</div>
       </div>
     </div>
   </div>
 </section>
 {social_block()}'''
-    write('index.html', head('М Мебель — фабрика мягкой мебели в Ставрополе | диваны Comfort Collection',
+    write('index.html', head('М Мебель – фабрика мягкой мебели в Ставрополе | диваны Comfort Collection',
         'Фабрика мягкой мебели «М Мебель» в Ставрополе с 1998 года. Диваны, угловые диваны, кресла с электрореклайнерами. Премиальная линия Comfort Collection. Мебель и пух оптом.', 'index.html')
         + header('index.html') + '<main>' + body + '</main>' + footer() + end())
 
@@ -442,7 +474,7 @@ def catalog():
     mech_opts = ''.join(f'<option value="{e(m)}">{e(m)}</option>' for m in MECHS)
     data = json.dumps(PRODUCTS, ensure_ascii=False)
     body = page_hero('Каталог', 'Каталог мягкой мебели', 'Каталог моделей',
-        f'{len(PRODUCTS)} моделей двух коллекций. Нажмите на модель, чтобы увидеть размеры, механизм и наполнение. Цена — по запросу в WhatsApp.') + f'''
+        f'{len(PRODUCTS)} моделей двух коллекций. Нажмите на модель, чтобы увидеть размеры, механизм и наполнение. Цена – по запросу в WhatsApp.') + f'''
 <div class="filters">
   <div class="container filters-inner">
     <div class="seg" data-filter="coll"><button data-v="all" class="active">Все</button><button data-v="mc">Comfort Collection</button><button data-v="mm">М Мебель</button></div>
@@ -475,7 +507,7 @@ def catalog():
         <div class="spec" style="margin-top:14px"><dt>Механизм</dt><dd id="m-mech"></dd></div>
         <div class="spec" style="margin-top:14px"><dt>Конструкция и наполнение</dt><dd><ul id="m-mat"></ul></dd></div>
       </dl>
-      <div class="price-note"><b>Цена по запросу.</b> Стоимость зависит от ткани и комплектации — напишите нам, и менеджер рассчитает цену и пришлёт варианты обивки.</div>
+      <div class="price-note"><b>Цена по запросу.</b> Стоимость зависит от ткани и комплектации – напишите нам, и менеджер рассчитает цену и пришлёт варианты обивки.</div>
       <div class="modal-actions">
         <a class="btn btn-wa" id="m-wa" href="#" target="_blank" rel="noopener">{I['wa']} Узнать цену в WhatsApp</a>
         <div style="display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap">
@@ -486,13 +518,13 @@ def catalog():
     </div>
   </div>
 </div>'''
-    write('catalog.html', head('Каталог диванов и кресел — М Мебель и Comfort Collection', 'Каталог мягкой мебели фабрики «М Мебель»: угловые и прямые диваны, кресла с электрореклайнерами, пуфы. Размеры, механизмы, наполнение. Цена по запросу.', 'catalog.html')
+    write('catalog.html', head('Каталог диванов и кресел – М Мебель и Comfort Collection', 'Каталог мягкой мебели фабрики «М Мебель»: угловые и прямые диваны, кресла с электрореклайнерами, пуфы. Размеры, механизмы, наполнение. Цена по запросу.', 'catalog.html')
         + header('catalog.html') + '<main>' + body + '</main>' + footer() + end(f'<script>window.PRODUCTS={data}</script>'))
 
 # ================= ПРОИЗВОДСТВО =================
 def production():
     body = page_hero('Производство и пух', 'О фабрике', 'Современная мебельная фабрика на юге России',
-        '«М Мебель» — производство полного цикла в Ставрополе. С 1998 года мы сохраняем лучшие традиции и используем проверенные материалы от ведущих производителей.') + f'''
+        '«М Мебель» – производство полного цикла в Ставрополе. С 1998 года мы сохраняем лучшие традиции и используем проверенные материалы от ведущих производителей.') + f'''
 <section class="section">
   <div class="container two-col">
     <div class="rv">
@@ -500,8 +532,8 @@ def production():
       <p class="quote" style="margin-top:18px">Место, где сочетаются качество, уют и современный дизайн.</p>
     </div>
     <div class="prose rv rv-d1">
-      <p>Наша мебель создаётся <b>опытной командой профессионалов</b>, тщательно контролирующих качество каждого изделия. Наш главный капитал — специалисты, которые годами оттачивали своё мастерство и с любовью создают качественную и долговечную мебель для вашего комфорта.</p>
-      <p>В ассортименте — мебель на любой вкус: <b>от базовых моделей до эксклюзивных диванов и кресел с электрореклайнерами</b>. Вся продукция проходит строгий контроль качества и производится на современном оборудовании из Германии и Австрии.</p>
+      <p>Наша мебель создаётся <b>опытной командой профессионалов</b>, тщательно контролирующих качество каждого изделия. Наш главный капитал – специалисты, которые годами оттачивали своё мастерство и с любовью создают качественную и долговечную мебель для вашего комфорта.</p>
+      <p>В ассортименте – мебель на любой вкус: <b>от базовых моделей до эксклюзивных диванов и кресел с электрореклайнерами</b>. Вся продукция проходит строгий контроль качества и производится на современном оборудовании из Германии и Австрии.</p>
       <p>В каждом цехе установлено <b>новейшее оборудование</b> и мощные вытяжные системы, обеспечивающие высокое качество продукции и безопасные условия труда.</p>
     </div>
   </div>
@@ -528,7 +560,7 @@ def production():
     </div>
     <div class="feature-row">
       <div class="feature rv"><b>Оборудование из Германии и Австрии</b><p>Точность раскроя и стабильное качество каждой партии.</p></div>
-      <div class="feature rv rv-d1"><b>Строгий контроль ОТК</b><p>Каждый этап проверяется — ваш диван приедет в целости и сохранности.</p></div>
+      <div class="feature rv rv-d1"><b>Строгий контроль ОТК</b><p>Каждый этап проверяется – ваш диван приедет в целости и сохранности.</p></div>
       <div class="feature rv rv-d2"><b>Проверенные материалы</b><p>Массив дерева, березовая фанера, HR ППУ, независимый пружинный блок.</p></div>
     </div>
   </div>
@@ -544,21 +576,20 @@ def production():
     <div>
       <span class="eyebrow">Пух для мебели</span>
       <h2 style="margin:16px 0 20px">Высококачественный пух собственного производства</h2>
-      <p class="lead">Для набивки нашей мебели мы используем пух собственного производства, который проходит обработку на нашем оборудовании. Сырьё поступает к нам в неготовом виде — это позволяет контролировать качество на каждом этапе.</p>
+      <p class="lead">Для набивки нашей мебели мы используем пух собственного производства, который проходит обработку на нашем оборудовании. Сырьё поступает к нам в неготовом виде – это позволяет контролировать качество на каждом этапе.</p>
       <div class="down-points">
         <div><i>01</i><p><b>Для мебельных фабрик</b><span>Наш пух уже поставляется другим производствам по всей России.</span></p></div>
-        <div><i>02</i><p><b>Для частных покупателей</b><span>Продаём отдельно — для перетяжки, подушек и ремонта мебели.</span></p></div>
-        <div><i>03</i><p><b>«Лебяжий пух» в Comfort Collection</b><span>В премиальной линии — гипоаллергенный наполнитель из Южной Кореи (Thinsulate).</span></p></div>
+        <div><i>02</i><p><b>Для частных покупателей</b><span>Продаём отдельно – для перетяжки, подушек и ремонта мебели.</span></p></div>
+        <div><i>03</i><p><b>«Лебяжий пух» в Comfort Collection</b><span>В премиальной линии – гипоаллергенный наполнитель из Южной Кореи (Thinsulate).</span></p></div>
       </div>
       <div class="hero-actions">
-        <a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} {B2B_DOWN['phone']}</a>
-        <span class="muted">{B2B_DOWN['person']}</span>
+        {person(B2B_DOWN, 'dark', 'Заказать пух')}
       </div>
     </div>
   </div>
 </section>
 {cta_band()}'''
-    write('production.html', head('Производство и пух — фабрика М Мебель, Ставрополь', 'Производство мягкой мебели полного цикла в Ставрополе: столярный, швейный, обивочный цеха, ОТК. Пух собственного производства оптом и в розницу.', 'production.html')
+    write('production.html', head('Производство и пух – фабрика М Мебель, Ставрополь', 'Производство мягкой мебели полного цикла в Ставрополе: столярный, швейный, обивочный цеха, ОТК. Пух собственного производства оптом и в розницу.', 'production.html')
         + header('production.html') + '<main>' + body + '</main>' + footer() + end())
 
 # ================= ПАРТНЁРАМ =================
@@ -571,21 +602,21 @@ def partners():
   <div class="container">
     <div class="b2b-grid">
       <div class="b2b dark rv">
-        <span class="num">01 — ДЛЯ МЕБЕЛЬНЫХ МАГАЗИНОВ</span>
+        <span class="num">01 – ДЛЯ МЕБЕЛЬНЫХ МАГАЗИНОВ</span>
         <h3>Мебель оптом</h3>
         <p>Мы ищем мебельные магазины в регионах России, заинтересованные в продаже готовой качественной мебели от производителя. От вас ждём заказы и хороший настрой. От нас гарантируем стильную и удобную мебель в ваши магазины.</p>
         <ul style="list-style:none;display:grid;gap:8px;opacity:.85;font-size:15px">
-          <li>— {len(PRODUCTS)} моделей в двух ценовых сегментах</li>
-          <li>— Премиальная линия Comfort Collection для требовательных клиентов</li>
-          <li>— Стабильное качество и контроль ОТК</li>
+          <li>– {len(PRODUCTS)} моделей в двух ценовых сегментах</li>
+          <li>– Премиальная линия Comfort Collection для требовательных клиентов</li>
+          <li>– Стабильное качество и контроль ОТК</li>
         </ul>
-        <div class="who"><div><b>{B2B_FURN['person']}</b></div><a class="btn btn-light" href="tel:{B2B_FURN['tel']}">{I['ph']} {B2B_FURN['phone']}</a></div>
+        <div class="who">{person(B2B_FURN, 'light', 'Мебель оптом')}</div>
       </div>
       <div class="b2b sand rv rv-d1">
-        <span class="num">02 — ДЛЯ МЕБЕЛЬНЫХ ПРОИЗВОДСТВ</span>
+        <span class="num">02 – ДЛЯ МЕБЕЛЬНЫХ ПРОИЗВОДСТВ</span>
         <h3>Пух оптом и в розницу</h3>
         <p>Высококачественный пух собственного производства. Сырьё обрабатывается на нашем оборудовании, поэтому мы отвечаем за качество на каждом этапе. Поставляем фабрикам по всей России.</p>
-        <div class="who"><div><b>{B2B_DOWN['person']}</b></div><a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} {B2B_DOWN['phone']}</a></div>
+        <div class="who">{person(B2B_DOWN, 'dark', 'Пух оптом')}</div>
       </div>
     </div>
   </div>
@@ -595,18 +626,18 @@ def partners():
     <div class="cities rv" style="margin-top:0">
       <div class="cities-head"><div><span class="eyebrow">География</span><h2 style="margin-top:12px">Города, в которых мы уже представлены</h2></div></div>
       <div class="chips">{chips}</div>
-      <p class="muted" style="margin-top:22px;font-size:14px">Хотите узнать адрес салона в вашем городе? Напишите нам в <a href="{wa('Здравствуйте! Где можно посмотреть вашу мебель в моём городе: ')}" target="_blank" rel="noopener" style="text-decoration:underline">WhatsApp</a> — подскажем ближайший магазин.</p>
+      <p class="muted" style="margin-top:22px;font-size:14px">Хотите узнать адрес салона в вашем городе? Напишите нам в <a href="{wa('Здравствуйте! Где можно посмотреть вашу мебель в моём городе: ')}" target="_blank" rel="noopener" style="text-decoration:underline">WhatsApp</a> – подскажем ближайший магазин.</p>
     </div>
     <div class="cities rv" style="margin-top:26px;background:var(--sand)">
       <div class="cities-head"><div><span class="eyebrow">Ищем партнёров</span><h3 style="margin-top:10px">Актуальные города для сотрудничества</h3></div>
         <a class="btn btn-dark btn-sm" href="tel:{B2B_FURN['tel']}">{I['ph']} Обсудить сотрудничество</a></div>
       <div class="chips">{new}</div>
-      <p class="muted" style="margin-top:22px;font-size:14px">Если вы находитесь в одном из этих городов — будем очень рады сотрудничеству.</p>
+      <p class="muted" style="margin-top:22px;font-size:14px">Если вы находитесь в одном из этих городов – будем очень рады сотрудничеству.</p>
     </div>
   </div>
 </section>
 {social_block()}'''
-    write('partners.html', head('Мебель и пух оптом от производителя — М Мебель', 'Оптовые поставки мягкой мебели для магазинов и пуха для мебельных производств от фабрики «М Мебель», Ставрополь. Представлены в 30+ городах России.', 'partners.html')
+    write('partners.html', head('Мебель и пух оптом от производителя – М Мебель', 'Оптовые поставки мягкой мебели для магазинов и пуха для мебельных производств от фабрики «М Мебель», Ставрополь. Представлены в 30+ городах России.', 'partners.html')
         + header('partners.html') + '<main>' + body + '</main>' + footer() + end())
 
 # ================= КОНТАКТЫ =================
@@ -622,7 +653,7 @@ def contacts():
           <button class="btn btn-outline btn-sm" data-map-btn="{map_url(s['city']+', '+s['name'])}">{I['pin2']} На карте</button>
         </div>
       </div>''' for s in SHOPS)
-    body = page_hero('Контакты', 'Контакты', 'Будем рады вам', 'Цены на мебель — по запросу. Напишите в WhatsApp или позвоните в ближайший магазин — подберём модель и ткань.') + f'''
+    body = page_hero('Контакты', 'Контакты', 'Будем рады вам', 'Цены на мебель – по запросу. Напишите в WhatsApp или позвоните в ближайший магазин – подберём модель и ткань.') + f'''
 <section class="section">
   <div class="container">
     <div class="contact-grid">
@@ -651,7 +682,7 @@ def contacts():
         <b>@mmebel_m</b>
         <div class="row" style="margin-top:0">
           <a class="btn btn-outline btn-sm" href="{TG}" target="_blank" rel="noopener">{I['tg']} Telegram</a>
-          <a class="btn btn-outline btn-sm" href="{IG}" target="_blank" rel="noopener">{I['ig']} Instagram</a>
+          <a class="btn btn-outline btn-sm" href="{IG}" target="_blank" rel="noopener">{I['ig']} Instagram*</a>
           <a class="btn btn-outline btn-sm" href="{PIN}" target="_blank" rel="noopener">{I['pin']} Pinterest</a>
         </div>
       </div>
@@ -660,9 +691,113 @@ def contacts():
   </div>
 </section>
 {social_block()}'''
-    write('contacts.html', head('Контакты — магазины М Мебель в Ставрополе', 'Магазины мягкой мебели «М Мебель» в Ставрополе: Михайловское шоссе, 14 и ул. Доваторцев, 74. WhatsApp, телефоны оптовых менеджеров.', 'contacts.html')
+    write('contacts.html', head('Контакты – магазины М Мебель в Ставрополе', 'Магазины мягкой мебели «М Мебель» в Ставрополе: Михайловское шоссе, 14 и ул. Доваторцев, 74. WhatsApp, телефоны оптовых менеджеров.', 'contacts.html')
         + header('contacts.html') + '<main>' + body + '</main>' + footer() + end())
 
+# ================= ЮРИДИЧЕСКИЕ СТРАНИЦЫ =================
+def operator_block():
+    return f"""<ul class="req">
+  <li><span>Оператор</span>{legal('org','наименование ИП / организации')}</li>
+  <li><span>ИНН</span>{legal('inn','ИНН')}</li>
+  <li><span>ОГРН / ОГРНИП</span>{legal('ogrn','ОГРН')}</li>
+  <li><span>Адрес</span>{legal('address','юридический адрес')}</li>
+  <li><span>E-mail для обращений</span>{legal('email','e-mail')}</li>
+  <li><span>Телефон</span><a href="tel:{SHOPS[1]['tel']}">{SHOPS[1]['phone']}</a></li>
+</ul>"""
+
+def doc_page(fname, crumb, title, lead, body, desc):
+    html_ = page_hero(crumb, 'Документы', title, lead) + f"""
+<section class="section">
+  <div class="container doc">
+    <aside class="doc-side">
+      <a href="privacy.html"{' class="active"' if fname=='privacy.html' else ''}>Политика обработки персональных данных</a>
+      <a href="consent.html"{' class="active"' if fname=='consent.html' else ''}>Согласие на обработку данных</a>
+      <button type="button" data-cookie-settings>Настройки cookie</button>
+    </aside>
+    <article class="prose doc-body">{body}</article>
+  </div>
+</section>"""
+    write(fname, head(title + ' – М Мебель', desc, fname) + header(fname) + '<main>' + html_ + '</main>' + footer() + end())
+
+def privacy():
+    body = f"""
+<p class="doc-date">Редакция от {POLICY_DATE}</p>
+<h2>1. Общие положения</h2>
+<p>1.1. Настоящая Политика в отношении обработки персональных данных (далее – Политика) разработана в соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ «О персональных данных» (далее – Закон) и определяет порядок обработки персональных данных и меры по обеспечению их безопасности.</p>
+<p>1.2. Политика применяется ко всей информации, которую Оператор может получить о посетителях сайта «М Мебель» (далее – Сайт), а также о лицах, обратившихся к Оператору по телефону или через мессенджеры, указанные на Сайте.</p>
+<p>1.3. Сведения об Операторе:</p>
+{operator_block()}
+<p>1.4. Политика опубликована в свободном доступе на Сайте в соответствии с ч. 2 ст. 18.1 Закона.</p>
+
+<h2>2. Основные понятия</h2>
+<p><b>Персональные данные</b> – любая информация, относящаяся прямо или косвенно к определённому или определяемому физическому лицу (субъекту персональных данных).</p>
+<p><b>Обработка персональных данных</b> – любое действие или совокупность действий с персональными данными, включая сбор, запись, систематизацию, накопление, хранение, уточнение, извлечение, использование, блокирование, удаление и уничтожение.</p>
+<p><b>Cookie</b> – небольшой фрагмент данных, который сохраняется в браузере пользователя при посещении сайта.</p>
+
+<h2>3. Какие данные обрабатываются и для чего</h2>
+<p>3.1. Сайт не содержит форм для ввода персональных данных и не предлагает регистрацию. На Сайте не используются сервисы веб-аналитики и рекламные счётчики.</p>
+<p>3.2. <b>При обращении к Оператору</b> по телефону или через мессенджер (WhatsApp, Telegram) пользователь по своей инициативе сообщает: имя, номер телефона, содержание обращения (интересующие модели, город, пожелания). <br>Цели: ответ на обращение, консультация, расчёт стоимости, заключение и исполнение договора купли-продажи или поставки. <br>Правовое основание: п. 5 ч. 1 ст. 6 Закона – обработка необходима для заключения договора по инициативе субъекта и его исполнения.</p>
+<p>3.3. <b>При посещении Сайта</b> обрабатываются технические данные: IP-адрес, сведения о браузере и устройстве, файлы cookie. <br>Цели: корректная работа Сайта, сохранение выбора пользователя в отношении cookie, отображение карты проезда к магазинам. <br>Правовое основание: согласие пользователя (п. 1 ч. 1 ст. 6 Закона), которое даётся отдельно нажатием кнопки «Принять» в уведомлении о cookie. Текст согласия опубликован на странице <a href="consent.html">«Согласие на обработку данных»</a>.</p>
+<p>3.4. Оператор не обрабатывает специальные категории персональных данных и биометрические персональные данные.</p>
+
+<h2>4. Файлы cookie и сторонние сервисы</h2>
+<p>4.1. Сайт использует:</p>
+<ul>
+  <li><b>необходимые данные</b> – запись в хранилище браузера о выборе пользователя в уведомлении о cookie. Без них Сайт не сможет запомнить ваш выбор;</li>
+  <li><b>сервис «Яндекс Карты»</b> (ООО «Яндекс», Россия) – загружается только после согласия пользователя и может устанавливать собственные cookie в соответствии с политикой Яндекса.</li>
+</ul>
+<p>4.2. Шрифты и все файлы Сайта размещены на самом Сайте; данные посетителей не передаются сервисам Google.</p>
+<p>4.3. Пользователь может в любой момент изменить выбор по ссылке «Настройки cookie» внизу каждой страницы, а также удалить cookie или запретить их в настройках браузера.</p>
+<p>4.4. Ссылки на мессенджеры и социальные сети ведут на сторонние ресурсы. Обработка данных на этих ресурсах осуществляется их владельцами по их собственным правилам. Пользователь сам выбирает удобный способ связи; всегда можно позвонить по телефону.</p>
+
+<h2>5. Порядок и условия обработки</h2>
+<p>5.1. Обработка осуществляется с использованием средств автоматизации и без них, с соблюдением принципов, установленных ст. 5 Закона.</p>
+<p>5.2. Оператор не передаёт персональные данные третьим лицам, за исключением случаев, предусмотренных законодательством РФ, а также случаев, когда передача необходима для исполнения договора с пользователем (например, службе доставки – только данные, необходимые для доставки).</p>
+<p>5.3. При сборе персональных данных Оператор обеспечивает их запись, систематизацию, накопление, хранение, уточнение и извлечение с использованием баз данных, находящихся на территории Российской Федерации (ч. 5 ст. 18 Закона).</p>
+<p>5.4. Персональные данные хранятся не дольше, чем этого требуют цели обработки, – как правило, не более 3 лет с момента последнего обращения, если иной срок не установлен законом или договором. По достижении целей или при отзыве согласия данные уничтожаются.</p>
+
+<h2>6. Права пользователя</h2>
+<p>Пользователь вправе:</p>
+<ul>
+  <li>получать сведения об обработке своих персональных данных (ст. 14 Закона);</li>
+  <li>требовать уточнения, блокирования или уничтожения данных, если они неполные, устаревшие, неточные или не нужны для заявленных целей;</li>
+  <li>отозвать согласие на обработку персональных данных;</li>
+  <li>обжаловать действия Оператора в Роскомнадзоре или в суде.</li>
+</ul>
+<p>Запрос направляется Оператору письменно по адресу или на e-mail, указанные в п. 1.3. Оператор отвечает в течение 10 рабочих дней с момента получения запроса; срок может быть продлён не более чем на 5 рабочих дней с уведомлением о причинах (ст. 14, 20 Закона).</p>
+
+<h2>7. Меры по защите данных</h2>
+<p>Оператор принимает правовые, организационные и технические меры для защиты персональных данных от неправомерного или случайного доступа, уничтожения, изменения, блокирования, копирования, распространения (ст. 18.1, 19 Закона): назначение ответственного за обработку, ограничение доступа сотрудников, использование защищённого соединения (HTTPS) на Сайте.</p>
+
+<h2>8. Заключительные положения</h2>
+<p>8.1. Оператор вправе вносить изменения в Политику. Новая редакция вступает в силу с момента публикации на Сайте.</p>
+<p>8.2. Вопросы по обработке персональных данных можно направить по контактам, указанным в п. 1.3.</p>
+"""
+    doc_page('privacy.html', 'Политика обработки персональных данных', 'Политика обработки персональных данных',
+             'Как мы обрабатываем и защищаем данные посетителей сайта и клиентов.', body,
+             'Политика в отношении обработки персональных данных сайта «М Мебель» в соответствии с 152-ФЗ.')
+
+def consent():
+    body = f"""
+<p class="doc-date">Редакция от {POLICY_DATE}</p>
+<p>Нажимая кнопку «Принять» в уведомлении о файлах cookie на сайте «М Мебель» (далее – Сайт), я, действуя свободно, своей волей и в своём интересе, в соответствии со ст. 9 Федерального закона от 27.07.2006 № 152-ФЗ «О персональных данных» даю согласие Оператору на обработку моих персональных данных на следующих условиях.</p>
+<h2>1. Оператор</h2>
+{operator_block()}
+<h2>2. Перечень данных</h2>
+<p>IP-адрес; сведения о браузере, операционной системе и устройстве; файлы cookie; дата и время посещения; адреса посещённых страниц.</p>
+<h2>3. Цели обработки</h2>
+<p>Обеспечение корректной работы Сайта; отображение карты проезда к магазинам с помощью сервиса «Яндекс Карты» (ООО «Яндекс»).</p>
+<h2>4. Действия с данными</h2>
+<p>Сбор, запись, хранение, использование, передача (предоставление) ООО «Яндекс» в объёме, необходимом для работы виджета карты, удаление и уничтожение. Обработка осуществляется с использованием средств автоматизации.</p>
+<h2>5. Срок действия и отзыв согласия</h2>
+<p>Согласие действует 1 год с момента его предоставления или до его отзыва. Отозвать согласие можно в любой момент: нажав «Настройки cookie» внизу любой страницы Сайта и выбрав «Только необходимые», либо направив Оператору письменное заявление по адресу или e-mail, указанным выше. Отзыв согласия не влияет на законность обработки, осуществлённой до отзыва.</p>
+<p>Отказ от предоставления согласия не ограничивает доступ к Сайту: все разделы, каталог и контакты остаются доступны, не отображается только встроенная карта.</p>
+<p>Подробнее – в <a href="privacy.html">Политике обработки персональных данных</a>.</p>
+"""
+    doc_page('consent.html', 'Согласие на обработку данных', 'Согласие на обработку персональных данных',
+             'Согласие посетителя сайта на использование файлов cookie и технических данных.', body,
+             'Согласие на обработку персональных данных (cookie) посетителя сайта «М Мебель».')
+
 if __name__ == '__main__':
-    index(); catalog(); production(); partners(); contacts()
+    index(); catalog(); production(); partners(); contacts(); privacy(); consent()
     open(os.path.join(OUT, '.nojekyll'), 'w').close()
