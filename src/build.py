@@ -6,7 +6,7 @@
 import json, html, os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'docs')
-VER = '3'
+VER = '4'
 
 # ================= КОНТАКТЫ =================
 WA = '79288204184'
@@ -61,7 +61,7 @@ def slug(s):
     return r.strip('-')
 
 TYPES = {'corner': 'угловой диван', 'sofa': 'диван', 'chair': 'кресло', 'pouf': 'пуфы'}
-COLL = {'mc': 'M Comfort', 'mm': 'М Мебель'}
+COLL = {'mc': 'Comfort Collection', 'mm': 'М Мебель'}
 PRODUCTS = []
 for line in open(os.path.join(ROOT, 'src', 'products.txt'), encoding='utf-8'):
     line = line.strip()
@@ -110,7 +110,7 @@ def head(title, desc, page):
 <link rel="icon" href="img/brand/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v={VER}">
 </head>
 <body data-page="{page}">'''
@@ -148,8 +148,8 @@ def footer():
   <div class="container">
     <div class="footer-grid">
       <div>
-        <div class="logos"><img src="img/brand/mm-light.png" alt="М Мебель" width="241" height="273"><img src="img/brand/mc-light.png" alt="M Comfort Collection" width="516" height="222"></div>
-        <p>Фабрика мягкой мебели «М Мебель». Ставрополь, с 1998 года. Премиальная линия M Comfort Collection — с 2017 года.</p>
+        <div class="logos"><img src="img/brand/mm-light.png" alt="М Мебель" width="241" height="273"><img src="img/brand/mc-light.png" alt="Comfort Collection" width="516" height="222"></div>
+        <p>Фабрика мягкой мебели «М Мебель». Ставрополь, с 1998 года. Премиальная линия Comfort Collection — с 2017 года.</p>
       </div>
       <div>
         <h4>Разделы</h4>
@@ -250,7 +250,7 @@ def index():
         <span class="tag">Фирменный магазин · {s['city']}</span>
         <h3>{s['name']}</h3>
         <a class="ph" href="tel:{s['tel']}">{s['phone']}</a>
-        <p class="muted">Вся коллекция M Comfort и М Мебель, образцы тканей, консультация по механизмам.</p>
+        <p class="muted">Вся коллекция Comfort Collection и М Мебель, образцы тканей, консультация по механизмам.</p>
         <div class="row">
           <a class="btn btn-dark btn-sm" href="tel:{s['tel']}">{I['ph']} Позвонить</a>
           {f'<a class="btn btn-wa btn-sm" href="{wa("Здравствуйте! Пишу по поводу магазина на Доваторцев, 74.")}" target="_blank" rel="noopener">{I["wa"]} WhatsApp</a>' if s.get('wa') else ''}
@@ -264,8 +264,8 @@ def index():
   <div class="container hero-grid">
     <div>
       <span class="eyebrow rv">Фабрика мягкой мебели · Ставрополь</span>
-      <h1 class="rv rv-d1" style="margin-top:22px">Мягкая мебель,<br>в которой <em>хочется</em><br>остаться</h1>
-      <p class="lead rv rv-d2">«М Мебель» — производство полного цикла с 1998 года. Диваны и кресла от базовых моделей до премиальной линии M Comfort с электрореклайнерами и наполнителем «лебяжий пух».</p>
+      <h1 class="rv rv-d1" style="margin-top:22px">Мягкая мебель,<br>в которой хочется<br>остаться</h1>
+      <p class="lead rv rv-d2">«М Мебель» — производство полного цикла с 1998 года. Диваны и кресла от базовых моделей до премиальной линии Comfort Collection с электрореклайнерами и наполнителем «лебяжий пух».</p>
       <div class="hero-actions rv rv-d3">
         <a class="btn btn-light" href="catalog.html">Смотреть каталог {I['arr']}</a>
         <a class="btn btn-wa" href="{wa('Здравствуйте! Хочу узнать цену на диван.')}" target="_blank" rel="noopener">{I['wa']} Узнать цену</a>
@@ -273,7 +273,7 @@ def index():
     </div>
     <div class="rv rv-d2">
       <div class="hero-stage">{slides}</div>
-      <div class="hero-caption"><div><b>Фрэнк</b><span>M Comfort</span></div><div class="hero-dots"></div></div>
+      <div class="hero-caption"><div><b>Фрэнк</b></div><div class="hero-dots"></div></div>
     </div>
   </div>
   <div class="hero-scroll" aria-hidden="true"></div>
@@ -294,7 +294,7 @@ def index():
       <div><span class="eyebrow">Две линейки</span><h2>Выберите свою коллекцию</h2></div>
       <div class="switch" data-switch="#coll-stage">
         <span class="pill"></span>
-        <button class="active" data-key="mc">M Comfort</button>
+        <button class="active" data-key="mc">Comfort Collection</button>
         <button data-key="mm">М Мебель</button>
       </div>
     </div>
@@ -302,7 +302,7 @@ def index():
       <span class="arc"></span>
       <div class="coll-panel active" data-key="mc">
         <div class="c-text">
-          <img class="c-logo" src="img/brand/mc-light.png" alt="M Comfort Collection" width="516" height="222">
+          <img class="c-logo" src="img/brand/mc-light.png" alt="Comfort Collection" width="516" height="222">
           <h3>Премиальная линия</h3>
           <p>С 2017 года мы выпускаем Comfort Collection — современные технологии, массив дерева и наполнитель «лебяжий пух» из Южной Кореи, максимально приближенный по ощущениям к натуральному.</p>
           <ul>
@@ -310,7 +310,7 @@ def index():
             <li>Независимый пружинный блок и HR ППУ повышенной плотности</li>
             <li>Массив прочных пород дерева, березовая фанера</li>
           </ul>
-          <a class="btn btn-light" href="catalog.html?c=mc">Модели M Comfort {I['arr']}</a>
+          <a class="btn btn-light" href="catalog.html?c=mc">Модели Comfort {I['arr']}</a>
         </div>
         <div class="c-visual"><img src="img/products/01.webp" alt="Бруклин угловой" loading="lazy"><img src="img/products/06.webp" alt="Кресло Фрэнк" loading="lazy"></div>
       </div>
@@ -335,7 +335,7 @@ def index():
 <section class="section" style="padding-top:0">
   <div class="container">
     <div class="section-head">
-      <div><span class="eyebrow">M Comfort Collection</span><h2>Хиты премиальной линии</h2></div>
+      <div><span class="eyebrow">Comfort Collection</span><h2>Хиты премиальной линии</h2></div>
       <a class="link-arrow" href="catalog.html?c=mc">Все модели {I['arr']}</a>
     </div>
     <div class="rail rv">{mc_rail}</div>
@@ -361,11 +361,11 @@ def index():
       <p class="lead">Сырьё поступает к нам в неготовом виде и проходит обработку на нашем оборудовании — поэтому мы контролируем качество на каждом этапе. Наш пух поставляется и другим мебельным фабрикам по всей России.</p>
       <div class="down-points">
         <div><i>01</i><p><b>Полный контроль</b><span>От сырья до готового наполнителя — всё на нашем производстве.</span></p></div>
-        <div><i>02</i><p><b>«Лебяжий пух» в M Comfort</b><span>Мягкий гипоаллергенный наполнитель из Южной Кореи — ощущения как от натурального пуха.</span></p></div>
+        <div><i>02</i><p><b>«Лебяжий пух» в Comfort Collection</b><span>Мягкий гипоаллергенный наполнитель из Южной Кореи — ощущения как от натурального пуха.</span></p></div>
         <div><i>03</i><p><b>Продаём отдельно</b><span>Нужен пух для своего производства или для перетяжки? Поставляем оптом и в розницу.</span></p></div>
       </div>
       <div class="hero-actions">
-        <a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} Купить пух · {B2B_DOWN['person']}</a>
+        <a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} Заказать пух</a>
         <a class="link-arrow" href="production.html#down">Подробнее {I['arr']}</a>
       </div>
     </div>
@@ -385,8 +385,8 @@ def index():
       <div class="shop"><span class="n">04</span><div><b>Обивочный цех</b><p>Сборка и обивка изделий</p></div></div>
       <div class="shop"><span class="n">05</span><div><b>Пуховой отдел</b><p>Собственный наполнитель</p></div></div>
       <div class="shop"><span class="n">06</span><div><b>Отдел контроля качества</b><p>ОТК проверяет каждый этап</p></div></div>
-      <div class="shop"><span class="n">07</span><div><b>Склады</b><p>Готовая продукция и материалы</p></div></div>
-      <div class="shop"><span class="n">08</span><div><b>Оборудование</b><p>Из Германии и Австрии</p></div></div>
+      <div class="shop"><span class="n">07</span><div><b>Оборудование</b><p>Из Германии и Австрии</p></div></div>
+      <div class="shop"><span class="n">08</span><div><b>Склады</b><p>Готовая продукция и материалы</p></div></div>
     </div>
   </div>
 </section>
@@ -416,20 +416,20 @@ def index():
         <span class="num">01 — ДЛЯ МЕБЕЛЬНЫХ МАГАЗИНОВ</span>
         <h3>Мебель оптом</h3>
         <p>Ищем мебельные магазины в регионах России, заинтересованные в продаже готовой качественной мебели от производителя. От вас — заказы и хороший настрой, от нас — стильная и удобная мебель в ваши магазины.</p>
-        <div class="who"><div><small>Менеджер</small><b>{B2B_FURN['person']}</b></div><a class="btn btn-light" href="tel:{B2B_FURN['tel']}">{I['ph']} {B2B_FURN['phone']}</a></div>
+        <div class="who"><div><b>{B2B_FURN['person']}</b></div><a class="btn btn-light" href="tel:{B2B_FURN['tel']}">{I['ph']} {B2B_FURN['phone']}</a></div>
       </div>
       <div class="b2b sand rv rv-d1">
         <span class="num">02 — ДЛЯ МЕБЕЛЬНЫХ ПРОИЗВОДСТВ</span>
         <h3>Пух оптом и в розницу</h3>
         <p>Пух собственного производства для набивки подушек, спинок и сидений. Уже поставляем другим мебельным фабрикам по всей России.</p>
-        <div class="who"><div><small>Менеджер</small><b>{B2B_DOWN['person']}</b></div><a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} {B2B_DOWN['phone']}</a></div>
+        <div class="who"><div><b>{B2B_DOWN['person']}</b></div><a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} {B2B_DOWN['phone']}</a></div>
       </div>
     </div>
   </div>
 </section>
 {social_block()}'''
-    write('index.html', head('М Мебель — фабрика мягкой мебели в Ставрополе | диваны M Comfort',
-        'Фабрика мягкой мебели «М Мебель» в Ставрополе с 1998 года. Диваны, угловые диваны, кресла с электрореклайнерами. Премиальная линия M Comfort. Мебель и пух оптом.', 'index.html')
+    write('index.html', head('М Мебель — фабрика мягкой мебели в Ставрополе | диваны Comfort Collection',
+        'Фабрика мягкой мебели «М Мебель» в Ставрополе с 1998 года. Диваны, угловые диваны, кресла с электрореклайнерами. Премиальная линия Comfort Collection. Мебель и пух оптом.', 'index.html')
         + header('index.html') + '<main>' + body + '</main>' + footer() + end())
 
 # ================= КАТАЛОГ =================
@@ -445,7 +445,7 @@ def catalog():
         f'{len(PRODUCTS)} моделей двух коллекций. Нажмите на модель, чтобы увидеть размеры, механизм и наполнение. Цена — по запросу в WhatsApp.') + f'''
 <div class="filters">
   <div class="container filters-inner">
-    <div class="seg" data-filter="coll"><button data-v="all" class="active">Все</button><button data-v="mc">M Comfort</button><button data-v="mm">М Мебель</button></div>
+    <div class="seg" data-filter="coll"><button data-v="all" class="active">Все</button><button data-v="mc">Comfort Collection</button><button data-v="mm">М Мебель</button></div>
     <div class="seg" data-filter="type"><button data-v="all" class="active">Все типы</button><button data-v="corner">Угловые</button><button data-v="sofa">Диваны</button><button data-v="chair">Кресла</button><button data-v="pouf">Пуфы</button></div>
     <select class="select" id="f-mech" aria-label="Механизм"><option value="all">Любой механизм</option>{mech_opts}</select>
     <input class="search" id="f-q" type="search" placeholder="Поиск по названию…" aria-label="Поиск">
@@ -486,7 +486,7 @@ def catalog():
     </div>
   </div>
 </div>'''
-    write('catalog.html', head('Каталог диванов и кресел — М Мебель и M Comfort', 'Каталог мягкой мебели фабрики «М Мебель»: угловые и прямые диваны, кресла с электрореклайнерами, пуфы. Размеры, механизмы, наполнение. Цена по запросу.', 'catalog.html')
+    write('catalog.html', head('Каталог диванов и кресел — М Мебель и Comfort Collection', 'Каталог мягкой мебели фабрики «М Мебель»: угловые и прямые диваны, кресла с электрореклайнерами, пуфы. Размеры, механизмы, наполнение. Цена по запросу.', 'catalog.html')
         + header('catalog.html') + '<main>' + body + '</main>' + footer() + end(f'<script>window.PRODUCTS={data}</script>'))
 
 # ================= ПРОИЗВОДСТВО =================
@@ -509,7 +509,7 @@ def production():
 <section class="section" style="padding-top:0">
   <div class="container timeline">
     <div class="tl rv"><b>1998</b><p>Основание фабрики «М Мебель» в Ставрополе.</p></div>
-    <div class="tl rv rv-d1"><b>2017</b><p>Запуск премиальной линии M Comfort Collection с «лебяжьим пухом» из Южной Кореи.</p></div>
+    <div class="tl rv rv-d1"><b>2017</b><p>Запуск премиальной линии Comfort Collection с «лебяжьим пухом» из Южной Кореи.</p></div>
     <div class="tl rv rv-d2"><b>{len(CITIES)}+</b><p>городов России, где наша мебель представлена в салонах партнёров.</p></div>
   </div>
 </section>
@@ -523,8 +523,8 @@ def production():
       <div class="shop"><span class="n">04</span><div><b>Обивочный цех</b><p>Сборка, набивка и обивка</p></div></div>
       <div class="shop"><span class="n">05</span><div><b>Пуховой отдел</b><p>Обработка сырья и производство наполнителя</p></div></div>
       <div class="shop"><span class="n">06</span><div><b>ОТК</b><p>Отдел технического контроля на каждом этапе</p></div></div>
-      <div class="shop"><span class="n">07</span><div><b>Склады</b><p>Хранение материалов и готовой продукции</p></div></div>
-      <div class="shop"><span class="n">08</span><div><b>Офисы</b><p>Продажи, логистика, работа с партнёрами</p></div></div>
+      <div class="shop"><span class="n">07</span><div><b>Офисы</b><p>Продажи, логистика, работа с партнёрами</p></div></div>
+      <div class="shop"><span class="n">08</span><div><b>Склады</b><p>Хранение материалов и готовой продукции</p></div></div>
     </div>
     <div class="feature-row">
       <div class="feature rv"><b>Оборудование из Германии и Австрии</b><p>Точность раскроя и стабильное качество каждой партии.</p></div>
@@ -548,11 +548,11 @@ def production():
       <div class="down-points">
         <div><i>01</i><p><b>Для мебельных фабрик</b><span>Наш пух уже поставляется другим производствам по всей России.</span></p></div>
         <div><i>02</i><p><b>Для частных покупателей</b><span>Продаём отдельно — для перетяжки, подушек и ремонта мебели.</span></p></div>
-        <div><i>03</i><p><b>«Лебяжий пух» в M Comfort</b><span>В премиальной линии — гипоаллергенный наполнитель из Южной Кореи (Thinsulate).</span></p></div>
+        <div><i>03</i><p><b>«Лебяжий пух» в Comfort Collection</b><span>В премиальной линии — гипоаллергенный наполнитель из Южной Кореи (Thinsulate).</span></p></div>
       </div>
       <div class="hero-actions">
         <a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} {B2B_DOWN['phone']}</a>
-        <span class="muted">Менеджер по пуху — {B2B_DOWN['person']}</span>
+        <span class="muted">{B2B_DOWN['person']}</span>
       </div>
     </div>
   </div>
@@ -576,16 +576,16 @@ def partners():
         <p>Мы ищем мебельные магазины в регионах России, заинтересованные в продаже готовой качественной мебели от производителя. От вас ждём заказы и хороший настрой. От нас гарантируем стильную и удобную мебель в ваши магазины.</p>
         <ul style="list-style:none;display:grid;gap:8px;opacity:.85;font-size:15px">
           <li>— {len(PRODUCTS)} моделей в двух ценовых сегментах</li>
-          <li>— Премиальная линия M Comfort для требовательных клиентов</li>
+          <li>— Премиальная линия Comfort Collection для требовательных клиентов</li>
           <li>— Стабильное качество и контроль ОТК</li>
         </ul>
-        <div class="who"><div><small>Менеджер по опту</small><b>{B2B_FURN['person']}</b></div><a class="btn btn-light" href="tel:{B2B_FURN['tel']}">{I['ph']} {B2B_FURN['phone']}</a></div>
+        <div class="who"><div><b>{B2B_FURN['person']}</b></div><a class="btn btn-light" href="tel:{B2B_FURN['tel']}">{I['ph']} {B2B_FURN['phone']}</a></div>
       </div>
       <div class="b2b sand rv rv-d1">
         <span class="num">02 — ДЛЯ МЕБЕЛЬНЫХ ПРОИЗВОДСТВ</span>
         <h3>Пух оптом и в розницу</h3>
         <p>Высококачественный пух собственного производства. Сырьё обрабатывается на нашем оборудовании, поэтому мы отвечаем за качество на каждом этапе. Поставляем фабрикам по всей России.</p>
-        <div class="who"><div><small>Менеджер по пуху</small><b>{B2B_DOWN['person']}</b></div><a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} {B2B_DOWN['phone']}</a></div>
+        <div class="who"><div><b>{B2B_DOWN['person']}</b></div><a class="btn btn-dark" href="tel:{B2B_DOWN['tel']}">{I['ph']} {B2B_DOWN['phone']}</a></div>
       </div>
     </div>
   </div>

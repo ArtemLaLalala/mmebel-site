@@ -46,7 +46,7 @@
       slides[i].classList.remove('active'); dots.children[i].classList.remove('active');
       i = (k + slides.length) % slides.length;
       slides[i].classList.add('active'); dots.children[i].classList.add('active');
-      name.textContent = slides[i].dataset.name; coll.textContent = slides[i].dataset.coll;
+      name.textContent = slides[i].dataset.name; if (coll) coll.textContent = slides[i].dataset.coll;
     }
     function restart() { clearInterval(timer); timer = setInterval(() => go(i + 1), 4800); }
     go(0); restart();
