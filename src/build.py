@@ -521,7 +521,7 @@ def interior():
       </figure>'''
     data = json.dumps([dict(id=x['id'], name=x['name'], coll=x['collName'], type=x['typeName'], ph=ph) for x, ph in INTERIOR], ensure_ascii=False)
     body = page_hero('В интерьере', 'Мебель в интерьере', 'Наши диваны в интерьере',
-        f'{len(INTERIOR)} моделей в реальных пространствах. Нажмите на фото, чтобы рассмотреть его, или перейдите к модели в каталоге.') + f'''
+        f'{len(INTERIOR)} моделей в интерьере. Нажмите на фото, чтобы рассмотреть его, или перейдите к модели в каталоге.') + f'''
 <div class="filters">
   <div class="container filters-inner">
     <div class="seg" data-ifilter><button data-v="all" class="active">Все</button><button data-v="mc">Comfort Collection</button><button data-v="mm">М Мебель</button></div>
@@ -548,7 +548,7 @@ def interior():
     </figcaption>
   </figure>
 </div>'''
-    write('interior.html', head('Мебель в интерьере – диваны М Мебель и Comfort Collection', 'Фото диванов и кресел фабрики «М Мебель» в интерьере: как модели Comfort Collection и М Мебель смотрятся в реальных пространствах.', 'interior.html')
+    write('interior.html', head('Мебель в интерьере – диваны М Мебель и Comfort Collection', 'Фото диванов и кресел фабрики «М Мебель» в интерьере: как модели Comfort Collection и М Мебель смотрятся в интерьере.', 'interior.html')
         + header('interior.html') + '<main>' + body + '</main>' + footer() + end(f'<script>window.INTERIOR={data};window.WA="{WA}"</script>'))
 
 # ================= КАТАЛОГ =================
